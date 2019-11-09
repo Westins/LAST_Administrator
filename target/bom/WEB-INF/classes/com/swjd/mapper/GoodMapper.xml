@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swjd.dao.GoodMapper">
+
+    <!--查询所有的商品 字段查询-->
+	<select id="selAllGoods" resultType="com.swjd.pojo.Good">
+        SELECT * FROM goods where gName like "%"#{gName}"%" and gState in (0,1,2)
+        <if test="startDate!=null and startDate!=''">
+            and gTime = #{startDate}
+        </if>
+    </select>
+    
+    <!--查询特定的商品信息-->
+    <select id="selGoodsById" resultType="com.swjd.pojo.Good">
+        select * from goods where goodsId =#{goodsId};
+    </select>
+    
+    <!-- 对商品进行下架封禁处理 改状态为1 -->
+    <update id="upGoodsStop" parameterType="String">
+		update goods set
+		gState =1 where goodsId =#{goodsId}
+	</update>
+
+    <!-- 对商品进行下架封禁恢复处理||对审核的商品进行通过审核操作 改状态为0 -->
+    <update id="upGoodsStart" parameterType="String">
+		update goods set
+		gState =0 where goodsId =#{goodsId}
+	</update>
+
+    <!-- 统计本网站的所有有效商品的总数 -->
+    <select id="selCount" resultType="int">
+		SELECT COUNT(*) as count FROM goods where gState in(0,2)
+	</select>
+
+    <!-- 对商品实行删除操作 改状态为3 代表删除 -->
+    <update id="upGoodsState" parameterType="String">
+		update goods set
+		gState =3 where goodsId = #{goodsId}
+	</update>
+
+    <!--为goods表添加商品-->
+    <insert id="addGoods">
+        insert into goods(gImg,gName,gPrice,gRebate,gType,gDetailsTest,gTime)
+        values (#{gImg},#{gName},#{gPrice},#{gRebate},#{gType},#{gDetailsTest},#{gTime})
+    </insert>
+
+    <!--修改特定的商品信息-->
+    <update id="upByIdGoods">
+        update goods set gName=#{gName},gImg=#{gImg},gPrice=#{gPrice},gRebate=#{gRebate},gTime=#{gTime},gState=#{gState} where goodsId=#{goodsId}
+    </update>
+
+    <!--查询所有的商品数-->
+    <select id="selAllGoodsCount" resultType="int">
+       SELECT count(*) FROM goods where gState in (0,1,2)
+    </select>
+
+</mapper>

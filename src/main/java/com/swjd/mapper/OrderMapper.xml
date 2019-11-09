@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.swjd.dao.OrderMapper">
+
+    <!--查询所有的订单 字段查询-->
+	<select id="selAllOrders" resultType="com.swjd.pojo.Order">
+        SELECT oId,oNum,gName,gImg,gPrice,cNum,gType,oTime,aAddress,aName,aPhone,shopcart.userId,oState
+        FROM `order`,shopcart,address,goods WHERE
+        `order`.aId=address.aId and `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId
+        AND oState in(0,1)
+        <if test="startDate!=null and startDate!=''">
+            and oTime = #{startDate}
+        </if>
+        <if test="oNum!=null and oNum!=''">
+            and oNum = #{oNum}
+        </if>
+    </select>
+
+    <!--查询特定的订单信息-->
+    <select id="selByIdOrders" resultType="com.swjd.pojo.Order">
+        SELECT oId,oNum,gName,gImg,gPrice,cNum,gType,oTime,aName,aAddress,aPhone,shopcart.userId,oState
+        FROM `order`,shopcart,address,goods WHERE
+        `order`.aId=address.aId and `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId
+        and oId = #{oId}
+    </select>
+    
+    <!-- 对商品进行发货处理 改状态为1 -->
+    <update id="deliverGoods" parameterType="String">
+		UPDATE `order`
+		SET oState='1' WHERE oId = #{oId}
+	</update>
+
+    <!-- 对订单进行删除操作 改状态为2 代表删除 -->
+    <update id="upOrderState" parameterType="String">
+		UPDATE `order` set
+		oState =2 where oId = #{oId}
+	</update>
+
+    <!-- 折线图查询 -->
+    <!-- 查询所有订单数 -->
+    <select id="selSyDd" resultType="int" parameterType="String">SELECT COUNT(*) FROM `order` WHERE oTime BETWEEN #{startTime} AND #{endTime}</select>
+    <!-- 待发货 -->
+    <select id="selDfh" resultType="int" parameterType="String">SELECT count(*) FROM `order` where oTime BETWEEN #{startTime} AND #{endTime} AND oState='0'</select>
+    <!-- 已发货 -->
+    <select id="selYfh" resultType="int" parameterType="String">SELECT count(*) FROM `order` where oTime BETWEEN #{startTime} AND #{endTime} AND oState='1'</select>
+
+    <!--查询所有的订单数-->
+    <select id="selAllCountOrder" resultType="int">
+        SELECT COUNT(*) FROM `order`
+    </select>
+
+    <!--查询所有的交易记录-->
+    <select id="selAllMoney" resultType="int">
+        SELECT SUM(gPrice*cNum) FROM `order`,goods,shopcart WHERE
+        `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId
+    </select>
+
+    <!--查询所有的订单数  1.宝宝洗护-->
+    <select id="selAllOrder1" resultType="int">
+         SELECT COUNT(*) FROM `order`,goods,shopcart WHERE
+        `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId AND gType='1'
+    </select>
+    <!--查询所有的订单数  2.宝宝玩具-->
+    <select id="selAllOrder2" resultType="int">
+         SELECT COUNT(*) FROM `order`,goods,shopcart WHERE
+        `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId AND gType='2'
+    </select>
+    <!--查询所有的订单数  3.童床-->
+    <select id="selAllOrder3" resultType="int">
+         SELECT COUNT(*) FROM `order`,goods,shopcart WHERE
+        `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId AND gType='3'
+    </select>
+    <!--查询所有的订单数  4.尿裤湿巾-->
+    <select id="selAllOrder4" resultType="int">
+         SELECT COUNT(*) FROM `order`,goods,shopcart WHERE
+        `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId AND gType='4'
+    </select>
+    <!--查询所有的订单数  5.奶粉-->
+    <select id="selAllOrder5" resultType="int">
+         SELECT COUNT(*) FROM `order`,goods,shopcart WHERE
+        `order`.cId=shopcart.cId and goods.goodsId=shopcart.goodsId AND gType='5'
+    </select>
+</mapper>
